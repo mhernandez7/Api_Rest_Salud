@@ -8,6 +8,7 @@ import com.salud.persistence.mapper.PatientMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,5 +39,36 @@ public class PatientRepostitory implements PatientDtoRepository {
     @Override
     public void delete(int idPatient) {
         patientCrudRepository.deleteById(idPatient);
+    }
+
+    @Override
+    public Optional<List<PatientDto>> getByName(String name) {
+        List<Patient> patients = patientCrudRepository.findByNameLike(name);
+        return Optional.of(mapper.toPatientDtos(patients));
+    }
+
+    @Override
+    public Optional<List<PatientDto>> getByBirthDate(LocalDate begin, LocalDate end) {
+        List<Patient> patients = patientCrudRepository.findByBirthDateBetween( begin, end);
+        return Optional.of(mapper.toPatientDtos(patients));
+    }
+
+    @Override
+    public PatientDto update(PatientDto patientDto, int idPatient) {
+        return patientCrudRepository.findById(idPatient)
+                .map(patient -> {
+                    patientDto.setNumberPatient(patientDto.getNumberPatient());
+                    patientDto.setTypeDocument(patientDto.getTypeDocument());
+                    patientDto.setNumberDocument(patientDto.getNumberDocument());
+                    patientDto.setRegisterTime(patientDto.getRegisterTime());
+                    patientDto.setName(patientDto.getName());
+                    patientDto.setLastName(patientDto.getLastName());
+                    patientDto.setBirthDate(patientDto.getBirthDate());
+                    patientDto.setDirection(patientDto.getDirection());
+                    patientDto.setNumber(patientDto.getNumber());
+                    patientDto.setEmail(patientDto.getEmail());
+                    patient = mapper.toPatient(patientDto);
+                    return mapper.toPatientDto(patientCrudRepository.save(patient));
+                }).get();
     }
 }

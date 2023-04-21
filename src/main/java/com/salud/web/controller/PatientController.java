@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,4 +46,31 @@ public class PatientController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
+    @GetMapping("/name/{name}")
+    public ResponseEntity<List<PatientDto>> getByName(@PathVariable("name") String name){
+        return patientDtoService.getByName("%"+name+"%")
+                .map(patientDtos -> new ResponseEntity<>(patientDtos, HttpStatus.OK))
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @GetMapping("/date")
+    public ResponseEntity<List<PatientDto>> getByBirthDate( LocalDate begin, LocalDate end){
+     return patientDtoService.getByBirthDate(LocalDate.of(1997,1,1), LocalDate.of(1997,12,31))
+             .map(patientDtos -> new ResponseEntity<>(patientDtos, HttpStatus.OK))
+             .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    //NO he podido generar un metodo en donde se envie la fecha por postman
+    /*
+    @GetMapping("/date/{begin}/{end}")
+    public ResponseEntity<List<PatientDto>> getByBirthDate( @PathVariable("begin") LocalDate begin,@PathVariable("end") LocalDate end){
+        return patientDtoService.getByBirthDate(begin, end)
+                .map(patientDtos -> new ResponseEntity<>(patientDtos, HttpStatus.OK))
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+     */
+    @PutMapping("/update/{id}")
+    public ResponseEntity<PatientDto>update(@RequestBody PatientDto patientDto,@PathVariable("id") int idPatient){
+        return new ResponseEntity<>(patientDtoService.update(patientDto, idPatient), HttpStatus.OK);
+    }
 }
